@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# waletimothy.com
 
-## Getting Started
+Personal site for Wale Timothy — a Windows XP–styled "desktop" split into a
+personal/life section and a career/software section, plus a blog.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router) + **TypeScript**
+- **Tailwind CSS v4** for layout utilities; the actual XP chrome (title
+  bars, buttons, taskbar, wallpaper) is hand-written CSS in
+  `app/globals.css` — no UI kit, no icon font, no animation library.
+- **Blog**: plain Markdown files in `content/blog/`, parsed at build time
+  with `gray-matter` + `marked`. No CMS, no database.
+- Deployed as a **fully static export** (`output: "export"` in
+  `next.config.ts`) — every route is prerendered, so the deployed site is
+  plain HTML/CSS/JS on a CDN with no server function running per request.
+  This was chosen to keep the bundle and runtime footprint as small as
+  possible. If a future feature needs a server (a contact form, dynamic OG
+  images, etc.), drop the `output: "export"` line first.
+
+Bundle-size choices worth knowing about:
+- No Google/custom font download — the site uses the system font stack
+  (`Tahoma, "MS Sans Serif", Verdana, Arial, sans-serif`) so it renders as
+  close to real XP as licensing allows, at zero network cost.
+- No image assets for the wallpaper or icons — the Bliss-style backdrop is
+  a CSS gradient (an original approximation, not the copyrighted photo),
+  and icons are emoji/glyphs.
+- Draggable windows are hand-rolled on the Pointer Events API
+  (`hooks/useDraggable.ts`), not a library like `react-rnd`, and that logic
+  is only loaded on the desktop route (`/`) — every other page (About,
+  Career, blog posts) is a server component with no client JS beyond the
+  persistent taskbar/Start Menu.
+
+## Structure
+
+```
+app/
+  layout.tsx           # root layout: metadata, wraps everything in the desktop + taskbar
+  page.tsx              # "/" — the desktop: icons + a draggable welcome note
+  life/page.tsx          # "/life" — personal section (placeholder content, TODO)
+  career/
+    page.tsx              # "/career" — software/career section (placeholder, TODO)
+    resume/page.tsx        # "/career/resume"
+  blog/
+    page.tsx               # "/blog" — folder view of all posts
+    [slug]/page.tsx          # "/blog/:slug" — a post, rendered as a document window
+
+components/
+  window/Window.tsx      # XP window chrome (title bar, close/min/max, body) — server component
+  desktop/
+    Taskbar.tsx            # persistent taskbar + Start Menu toggle (the one real client component in layout)
+    StartMenu.tsx           # Start Menu contents, including "Recent Documents" (pinned/recent blog posts)
+    Clock.tsx                # ticking taskbar clock
+    DesktopIcon.tsx           # desktop icon (server component, just a styled Link)
+    DraggableNote.tsx          # draggable window, used only on "/"
+
+hooks/useDraggable.ts    # pointer-events drag hook, no dependency
+
+lib/
+  blog.ts                # reads/parses content/blog/*.md at build time
+  site-config.ts          # domain/name/description — single source of truth
+
+content/blog/*.md        # the posts themselves
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Route groups weren't used for the personal/career split — `/life` and
+`/career` are plain top-level routes, which keeps URLs short and the folder
+structure obvious. The "about me first, engineer second" framing comes from
+the desktop itself (`/`), where **My Life** is the first icon.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Writing a blog post
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Add a file to `content/blog/`, e.g. `content/blog/my-post.md`:
 
-## Learn More
+```md
+---
+title: "Post Title"
+date: "2026-01-15"
+excerpt: "One line for the listing page and link previews."
+pinned: false
+tags: ["optional"]
+---
 
-To learn more about Next.js, take a look at the following resources:
+Body in Markdown.
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Set `pinned: true` to have it show up in the Start Menu's "Recent
+Documents" ahead of newer, unpinned posts. Commit and deploy — the slug is
+the filename, and the page is statically generated at build time
+(`generateStaticParams` in `app/blog/[slug]/page.tsx`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Future subdomains
 
-## Deploy on Vercel
+This repo is scoped to the main site only (`waletimothy.com`). The plan for
+a future subdomain (e.g. a stylist site) is a **separate Vercel
+project/repo** pointed at that subdomain, not a route inside this app —
+this keeps each site's stack and deploy independent, and there's nothing in
+this codebase (config, routing, build) that assumes it owns the whole
+domain.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # static export to /out
+```

@@ -1,26 +1,347 @@
 @import "tailwindcss";
 
+/*
+ * Windows XP (Luna) theme, hand-built from CSS variables + gradients —
+ * no images, no icon font, no UI library. The wallpaper below is an
+ * original CSS gradient "in the spirit of" the Bliss wallpaper, not a
+ * reproduction of the copyrighted photo.
+ *
+ * This is a fixed theme by design: it does not respond to system
+ * light/dark mode. An XP desktop that suddenly went dark-mode-gray
+ * would break the bit it's for.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --xp-title-start: #1955e7;
+  --xp-title-mid: #4f93fb;
+  --xp-title-end: #1955e7;
+  --xp-title-inactive-start: #8ba3d9;
+  --xp-title-inactive-end: #b6cbf7;
+
+  --xp-face: #ece9d8; /* window / dialog body */
+  --xp-face-inset: #d4d0c8; /* sunken panel */
+  --xp-border-blue: #0831d9;
+  --xp-highlight: #ffffff;
+  --xp-shadow: #848175;
+  --xp-shadow-dark: #404040;
+
+  --xp-taskbar-start: #245edb;
+  --xp-taskbar-end: #1941a5;
+  --xp-start-start: #5bc236;
+  --xp-start-end: #2d6e1a;
+
+  --xp-link: #0000ee;
+  --xp-text: #000000;
+
+  --font-xp: Tahoma, "Segoe UI", "MS Sans Serif", Verdana, Arial, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-xp: var(--font-xp);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-xp);
+  font-size: 12px;
+  color: var(--xp-text);
+  margin: 0;
+}
+
+/* ---------- Desktop / wallpaper ---------- */
+
+.xp-desktop {
+  position: relative;
+  min-height: 100dvh;
+  background: radial-gradient(
+      circle at 15% 12%,
+      rgba(255, 255, 255, 0.55) 0,
+      rgba(255, 255, 255, 0) 12%
+    ),
+    linear-gradient(
+      to bottom,
+      #1e5799 0%,
+      #2989d8 18%,
+      #6cb4ee 38%,
+      #a9d8f5 54%,
+      #cdeeb0 58%,
+      #8fc63f 76%,
+      #4f8f27 100%
+    );
+  padding-bottom: 34px; /* space for fixed taskbar */
+  overflow-x: hidden;
+}
+
+/* ---------- Window chrome ---------- */
+
+.xp-window {
+  background: var(--xp-face);
+  border: 1px solid var(--xp-border-blue);
+  border-radius: 8px 8px 3px 3px;
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+}
+
+.xp-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 4px 3px 8px;
+  background: linear-gradient(
+    180deg,
+    var(--xp-title-start) 0%,
+    var(--xp-title-mid) 45%,
+    var(--xp-title-end) 100%
+  );
+  color: #fff;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  border-radius: 6px 6px 0 0;
+}
+
+.xp-titlebar.is-inactive {
+  background: linear-gradient(
+    180deg,
+    var(--xp-title-inactive-start) 0%,
+    var(--xp-title-inactive-end) 100%
+  );
+}
+
+.xp-titlebar-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.xp-titlebar-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.xp-title-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 20px;
+  font-size: 11px;
+  line-height: 1;
+  color: #1a1a1a;
+  background: linear-gradient(180deg, #fefefe 0%, #d9e4f0 45%, #b7c9e2 100%);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+.xp-title-btn.is-close {
+  background: linear-gradient(180deg, #ff8a7a 0%, #e5493a 45%, #c22a1d 100%);
+  color: #fff;
+}
+
+.xp-window-body {
+  padding: 14px;
+  background: var(--xp-face);
+}
+
+.xp-inset {
+  background: #fff;
+  border: 1px solid var(--xp-shadow);
+  box-shadow:
+    inset 1px 1px 0 var(--xp-shadow-dark),
+    inset -1px -1px 0 var(--xp-highlight);
+  padding: 10px;
+}
+
+/* ---------- Buttons (raised bevel) ---------- */
+
+.xp-btn {
+  font-family: var(--font-xp);
+  font-size: 12px;
+  background: var(--xp-face);
+  border-top: 1px solid var(--xp-highlight);
+  border-left: 1px solid var(--xp-highlight);
+  border-right: 1px solid var(--xp-shadow-dark);
+  border-bottom: 1px solid var(--xp-shadow-dark);
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 var(--xp-shadow);
+  padding: 4px 12px;
+  cursor: pointer;
+  color: var(--xp-text);
+}
+
+.xp-btn:active {
+  border-top: 1px solid var(--xp-shadow-dark);
+  border-left: 1px solid var(--xp-shadow-dark);
+  border-right: 1px solid var(--xp-highlight);
+  border-bottom: 1px solid var(--xp-highlight);
+  box-shadow: inset 1px 1px 0 var(--xp-shadow);
+}
+
+/* ---------- Desktop icons ---------- */
+
+.xp-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 84px;
+  padding: 6px 4px;
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 11px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.85);
+  border: 1px dotted transparent;
+  border-radius: 2px;
+}
+
+.xp-icon:hover,
+.xp-icon:focus-visible {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(49, 106, 197, 0.35);
+}
+
+.xp-icon-glyph {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.6));
+}
+
+/* ---------- Taskbar ---------- */
+
+.xp-taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+  background: linear-gradient(
+    180deg,
+    var(--xp-taskbar-start) 0%,
+    var(--xp-taskbar-end) 100%
+  );
+  border-top: 1px solid #5a8fe0;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+.xp-start-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 14px 0 8px;
+  border-radius: 4px;
+  border: 1px solid #1c5b0e;
+  background: linear-gradient(
+    180deg,
+    var(--xp-start-start) 0%,
+    var(--xp-start-end) 100%
+  );
+  color: #fff;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 13px;
+  cursor: pointer;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.xp-taskbar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 12px;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.xp-taskbar-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.xp-clock {
+  margin-left: auto;
+  color: #fff;
+  font-size: 11px;
+  padding: 0 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+/* ---------- Start menu ---------- */
+
+.xp-start-menu {
+  position: fixed;
+  left: 4px;
+  bottom: 36px;
+  width: 280px;
+  z-index: 200;
+}
+
+/* ---------- Page wrapper for windows floating over the desktop ---------- */
+
+.xp-page {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+/* ---------- Prose inside blog posts ---------- */
+
+.xp-prose h2 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 16px 0 6px;
+}
+
+.xp-prose p {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.xp-prose ul {
+  margin: 0 0 10px 18px;
+  list-style: disc;
+}
+
+.xp-prose a {
+  color: var(--xp-link);
+}
+
+.xp-prose code {
+  background: var(--xp-face-inset);
+  padding: 1px 4px;
+  font-family: "Courier New", monospace;
 }
