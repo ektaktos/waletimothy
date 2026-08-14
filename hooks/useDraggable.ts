@@ -33,9 +33,14 @@ export function useDraggable(initial: { x: number; y: number }) {
   const onPointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragState.current) return;
     const { startX, startY, originX, originY } = dragState.current;
+    // Clamp to the viewport so the window can't be dragged off-screen —
+    // in particular, never past the left/right edge, which would otherwise
+    // force a horizontal scrollbar on the whole page.
+    const maxX = Math.max(0, window.innerWidth - 60);
+    const maxY = Math.max(0, window.innerHeight - 60);
     setPosition({
-      x: originX + (e.clientX - startX),
-      y: originY + (e.clientY - startY),
+      x: Math.min(Math.max(originX + (e.clientX - startX), 0), maxX),
+      y: Math.min(Math.max(originY + (e.clientY - startY), 0), maxY),
     });
   }, []);
 
