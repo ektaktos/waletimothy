@@ -67,6 +67,9 @@ body {
 
 .xp-desktop {
   position: relative;
+  display: flow-root; /* new BFC so a child's top margin (e.g. .xp-page)
+                          can't collapse through this element and push the
+                          whole wallpaper down, exposing white above it */
   min-height: 100dvh;
   background: radial-gradient(
       circle at 15% 12%,
