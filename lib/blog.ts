@@ -19,6 +19,10 @@ export interface PostMeta {
   excerpt: string;
   pinned?: boolean;
   tags?: string[];
+  /** Groups related posts in the blog index, e.g. "Year in Review". */
+  series?: string;
+  /** Drafts are visible in `npm run dev` only and never built/listed in production. */
+  draft?: boolean;
 }
 
 export interface Post extends PostMeta {
@@ -39,34 +43,34 @@ function readPostFile(slug: string) {
   return matter(raw);
 }
 
+function toMeta(slug: string, data: Record<string, unknown>): PostMeta {
+  return {
+    slug,
+    title: (data.title as string) ?? slug,
+    date: (data.date as string) ?? "",
+    excerpt: (data.excerpt as string) ?? "",
+    pinned: Boolean(data.pinned),
+    tags: (data.tags as string[]) ?? [],
+    series: (data.series as string) || undefined,
+    draft: Boolean(data.draft),
+  };
+}
+
+const showDrafts = process.env.NODE_ENV === "development";
+
 export function getAllPosts(): PostMeta[] {
   return readSlugs()
-    .map((slug) => {
-      const { data } = readPostFile(slug);
-      return {
-        slug,
-        title: data.title ?? slug,
-        date: data.date ?? "",
-        excerpt: data.excerpt ?? "",
-        pinned: Boolean(data.pinned),
-        tags: data.tags ?? [],
-      } satisfies PostMeta;
-    })
+    .map((slug) => toMeta(slug, readPostFile(slug).data))
+    .filter((post) => showDrafts || !post.draft)
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
 export function getPostBySlug(slug: string): Post | null {
   if (!readSlugs().includes(slug)) return null;
   const { data, content } = readPostFile(slug);
-  return {
-    slug,
-    title: data.title ?? slug,
-    date: data.date ?? "",
-    excerpt: data.excerpt ?? "",
-    pinned: Boolean(data.pinned),
-    tags: data.tags ?? [],
-    html: marked.parse(content, { async: false }) as string,
-  };
+  const meta = toMeta(slug, data);
+  if (meta.draft && !showDrafts) return null;
+  return { ...meta, html: marked.parse(content, { async: false }) as string };
 }
 
 /**

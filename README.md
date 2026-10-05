@@ -89,6 +89,15 @@ Documents" ahead of newer, unpinned posts. Commit and deploy — the slug is
 the filename, and the page is statically generated at build time
 (`generateStaticParams` in `app/blog/[slug]/page.tsx`).
 
+## Yearly write-ups
+
+A `series: "Year in Review"` frontmatter field groups posts into a folder in
+My Documents. Workflow: log dated notes through the year in `notes/YYYY.md`
+(not published), then copy `content/templates/year-in-review.md` to
+`content/blog/YYYY-year-in-review.md`. Posts with `draft: true` show in
+`npm run dev` (marked as drafts) but are excluded from the production build —
+remove the line to publish.
+
 ## Future subdomains
 
 This repo is scoped to the main site only (`waletimothy.com`). The plan for
